@@ -1,1 +1,1 @@
-# Round-robin arbiter
+# Round-robin Arbiter
