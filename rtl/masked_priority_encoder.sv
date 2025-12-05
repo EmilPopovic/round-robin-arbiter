@@ -1,7 +1,4 @@
-module masked_priority_encoder #(
-    parameter WIDTH = 4,
-    parameter LSB   = 0
-)(
+module masked_priority_encoder #(parameter WIDTH=4, LSB=0)(
     input  logic [WIDTH-1:0]         i_vec,
     input  logic [$clog2(WIDTH)-1:0] i_pivot,
     output logic [$clog2(WIDTH)-1:0] o_idx,

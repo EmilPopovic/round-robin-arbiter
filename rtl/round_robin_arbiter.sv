@@ -1,7 +1,4 @@
-module round_robin_arbiter #(
-    parameter PORTS=2,
-    parameter ZERO_CYCLE=1    
-)(
+module round_robin_arbiter #(parameter PORTS=2, ZERO_CYCLE=1)(
     input  logic i_clk,
     input  logic i_rstn,
     input  logic [PORTS-1:0] i_req_vec,

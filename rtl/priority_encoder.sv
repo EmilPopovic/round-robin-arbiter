@@ -1,7 +1,4 @@
-module priority_encoder #(
-    parameter WIDTH = 4,
-    parameter LSB   = 0
-)(
+module priority_encoder #(parameter WIDTH=4, LSB=0)(
     input  logic [WIDTH-1:0]         i_vec,
     output logic [$clog2(WIDTH)-1:0] o_idx,
     output logic                     o_valid
