@@ -3,61 +3,45 @@ module round_robin_arbiter #(
 )(
     input  logic             i_clk,
     input  logic             i_rstn,
-    input  logic [PORTS-1:0] i_req,
-    output logic [PORTS-1:0] o_grant
+    input  logic [PORTS-1:0] i_req_vec,
+    output logic [PORTS-1:0] o_grant_vec
 );
 
-typedef enum logic {
-    S_IDLE  = 1'b0,
-    S_GRANT = 1'b1
-} state_e;
-
-state_e r_state;
-state_e w_next_state;
-
-logic [$clog2(PORTS)-1:0] r_grant_vec;
-logic [$clog2(PORTS)-1:0] w_idx;
+logic r_has_grant;
+logic [$clog2(PORTS)-1:0] r_grant_idx;
 logic [$clog2(PORTS)-1:0] w_next_grant_idx;
-logic w_next_valid;
-logic w_switch_master;
+logic w_has_req;
 
 masked_priority_encoder #(PORTS, 1) masked_encoder (
-    .i_vec   (i_req),
-    .i_idx   (w_idx),
+    .i_vec   (i_req_vec),
+    .i_idx   (r_grant_idx),
     .o_idx   (w_next_grant_idx),
-    .o_valid (w_next_valid)
+    .o_valid (w_has_req)
 );
 
 always_ff @(posedge i_clk) begin
     if (!i_rstn) begin
-        r_state     <= S_IDLE;
-        r_grant_vec <= '0;
+        r_has_grant <= 0;
+        r_grant_idx <= '0;
+        o_grant_vec <= '0;
     end
 
     else begin
-        r_state <= w_next_state;
+        r_has_grant <= w_has_req;
 
-        if (r_state == S_IDLE && w_next_valid || r_state == S_GRANT && w_switch_master)
-            r_grant_vec <= PORTS'(1) << w_next_grant_idx;
-        else
-            r_grant_vec <= '0;
+        // Grant a new master if there is a request and either of the following is true:
+        // a) No master is currently granted
+        // b) The currently granted master has released request
+        if ((!r_has_grant || r_has_grant && i_req_vec[r_grant_idx]) && w_has_req) begin
+            r_grant_idx <= w_next_grant_idx;
+            o_grant_vec <= PORTS'(1) << w_next_grant_idx;
+        end
+        
+        else begin
+            r_grant_idx <= '0;
+            o_grant_vec <= '0;
+        end
     end
-end
-
-always_comb begin
-    w_next_state    = r_state;
-    w_switch_master = 0;
-
-    unique case (r_state)
-
-        S_IDLE: begin
-            w_next_state = (w_next_valid) ? S_GRANT : S_IDLE;
-        end
-
-        S_GRANT: begin
-
-        end
-    endcase
 end
 
 endmodule
