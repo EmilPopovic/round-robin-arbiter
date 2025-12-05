@@ -3,7 +3,7 @@ module masked_priority_encoder #(
     parameter LSB   = 0
 )(
     input  logic [WIDTH-1:0]         i_vec,
-    input  logic [$clog2(WIDTH)-1:0] i_idx,
+    input  logic [$clog2(WIDTH)-1:0] i_pivot,
     output logic [$clog2(WIDTH)-1:0] o_idx,
     output logic                     o_valid
 );
@@ -33,8 +33,8 @@ always_comb begin
 
     // Right to left
     if (LSB) begin
-        w_masked_right = i_vec &  ((WIDTH'(1) << (i_idx + 1)) - 1);
-        w_masked_left  = i_vec & ~((WIDTH'(1) << (i_idx + 1)) - 1);
+        w_masked_right = i_vec &  ((WIDTH'(1) << (i_pivot + 1)) - 1);
+        w_masked_left  = i_vec & ~((WIDTH'(1) << (i_pivot + 1)) - 1);
 
         // Prefer left (higher indexes), then right (lower indexes)
         o_idx = (w_valid_left) ? w_idx_left : (w_valid_right) ? w_idx_right : '0;
@@ -42,8 +42,8 @@ always_comb begin
 
     // Left to right
     else begin
-        w_masked_right = i_vec &  ((WIDTH'(1) << i_idx) - 1);
-        w_masked_left  = i_vec & ~((WIDTH'(1) << i_idx) - 1);
+        w_masked_right = i_vec &  ((WIDTH'(1) << i_pivot) - 1);
+        w_masked_left  = i_vec & ~((WIDTH'(1) << i_pivot) - 1);
 
         // Prefer right (lower indexes), than left (higher indexes)
         o_idx = (w_valid_right) ? w_idx_right : (w_valid_left) ? w_idx_left : '0;
