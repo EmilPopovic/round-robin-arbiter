@@ -10,6 +10,7 @@ axi-master/
 *.log
 .Xil/
 *.str/
+vivado_pid*
 
 # Block designs - ignore everything except .tcl files
 bd/*
