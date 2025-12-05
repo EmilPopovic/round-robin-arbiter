@@ -1,5 +1,5 @@
 # Vivado project
-axi-master/
+round-robin-arbiter/
 *.xpr
 *.cache/
 *.runs/
